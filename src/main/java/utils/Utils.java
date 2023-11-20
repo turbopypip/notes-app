@@ -7,7 +7,9 @@ public class Utils {
 
         System.out.print("\n");
         for (Commands command : Commands.values()){
-            System.out.printf("%-20s %s\n", command.getCommand(), command.getDescription());
+            System.out.printf("%-20s %s\n",
+                    Colors.GREEN.getColor() + command.getCommand(),
+                    Colors.BASE.getColor() + command.getDescription());
         }
         System.out.print("\n");
     }

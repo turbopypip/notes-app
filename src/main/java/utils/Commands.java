@@ -10,7 +10,7 @@ public enum Commands {
     private final String command;
     private final String description;
 
-    Commands(String value, String description) {
+    Commands(final String value, final String description) {
         this.command = value;
         this.description = description;
     }
