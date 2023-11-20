@@ -17,12 +17,13 @@ public class Main {
                 Type /stop to exit
                 
                 """);
+
         String input = reader.readLine();
         while (!Objects.equals(input, Commands.STOP.getCommand())) {
-            if (Objects.equals(input, Commands.INFO.getCommand())){
-                Utils.viewCommands();
-                input = reader.readLine();
-            }
+            //Checking input
+            Utils.checkCommand(input);
+
+            input = reader.readLine();
         }
     }
 }

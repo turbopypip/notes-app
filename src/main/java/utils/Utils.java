@@ -13,4 +13,24 @@ public class Utils {
         }
         System.out.print("\n");
     }
+
+    public static void checkCommand(String input){
+        //This method checks the input and calls the needed function
+
+        try {
+            //This logic finds the following command in Commands.java
+            final Commands command = Commands.valueOf(input.substring(1).toUpperCase());
+            switch(command){
+                case INFO -> viewCommands();
+                //... other commands
+            }
+        } catch (Exception e){
+            System.out.println(
+                    Colors.RED.getColor()
+                    + "Please enter the command correctly. \""
+                    + input
+                    + "\" is not a command."
+                    + Colors.BASE.getColor());
+        }
+    }
 }
