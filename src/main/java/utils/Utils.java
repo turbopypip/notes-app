@@ -34,33 +34,61 @@ public class Utils {
             return "Undefined OS";
         }
     }
+    public static void fileManage(String notesDirectoryPath, String notesFilePath, Note newNote){
+
+        // Creating Notes directory, if it is not exists
+        File notesDirectory = new File(notesDirectoryPath);
+        if (!notesDirectory.exists()) {
+            if (notesDirectory.mkdirs()) {
+                System.out.println("Created Notes directory.");
+            } else {
+                System.out.println("Failed to create the Notes directory.");
+            }
+        } else if (!notesDirectory.isDirectory()) {
+            System.out.println("Way " + notesDirectoryPath + " is not a directory.");
+        }
+
+        // Creating file notes.json in Notes directory
+        File notesFile = new File(notesFilePath);
+        try {
+            if (notesFile.createNewFile()) {
+                System.out.println("Created File notes.json.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred during creating notes.json: " + e.getMessage());
+        }
+
+        // Uploading new note to notes file
+        NotesManager.saveNotesToJson(newNote, notesFilePath, true, true);
+    }
     public static HashMap<String, Note> getNotes(){
         //This method reads all notes from notes.json
 
         HashMap<String, Note> notes = new HashMap<>();
+        String notesFilePath = "";
         switch (getOS()){
-            case "Windows" : { }
+            case "Windows" : {
+                notesFilePath = Patches.WINDOWS.getNotesFilePath();
+                break;
+            }
 
             case "macOS" : {
-                String userHome = System.getProperty("user.home");
-                String notesDirectoryPath = userHome + "/Library/Application Support/Notes";
-                String notesFilePath = notesDirectoryPath + "/notes.json";
-
-                try{
-                    BufferedReader reader = new BufferedReader(new FileReader(notesFilePath));
-                    String line;
-                    Gson gson = new Gson();
-
-                    // reading json objects from notes.json
-                    while ((line = reader.readLine()) != null) {
-                        Note note = gson.fromJson(line, Note.class);
-                        notes.put(note.getIndex(), note);
-                    }
-
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                notesFilePath = Patches.MACOS.getNotesFilePath();
             }
+        }
+        try{
+            BufferedReader reader = new BufferedReader(new FileReader(notesFilePath));
+            String line;
+            Gson gson = new Gson();
+
+            // reading json objects from notes.json
+            while ((line = reader.readLine()) != null) {
+                Note note = gson.fromJson(line, Note.class);
+                notes.put(note.getIndex(), note);
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
         }
         return notes;
     }
@@ -110,54 +138,31 @@ public class Utils {
 
         switch(getOS()){
             case "Windows" : {
-                // Need to check if it works
-                String appDataDir = System.getenv("APPDATA");
-                String filePath = appDataDir + "\\Notes\\notes.json";
-                NotesManager.saveNotesToJson(newNote, filePath, true, true);
+                String notesDirectoryPath = Patches.WINDOWS.getNotesDirectoryPath();
+                String notesFilePath = Patches.WINDOWS.getNotesFilePath();
+
+                fileManage(notesDirectoryPath, notesFilePath, newNote);
                 return;
             }
 
             case "macOS" : {
-                String userHome = System.getProperty("user.home");
-                String notesDirectoryPath = userHome + "/Library/Application Support/Notes";
-                String notesFilePath = notesDirectoryPath + "/notes.json";
+                String notesDirectoryPath = Patches.MACOS.getNotesDirectoryPath();
+                String notesFilePath = Patches.MACOS.getNotesFilePath();
 
-                // Creating Notes directory, if it is not exists
-                File notesDirectory = new File(notesDirectoryPath);
-                if (!notesDirectory.exists()) {
-                    if (notesDirectory.mkdirs()) {
-                        System.out.println("Created Notes directory.");
-                    } else {
-                        System.out.println("Failed to create the Notes directory.");
-                    }
-                } else if (!notesDirectory.isDirectory()) {
-                    System.out.println("Way " + notesDirectoryPath + " is not a directory.");
-                }
-
-                // Creating file notes.json in Notes directory
-                File notesFile = new File(notesFilePath);
-                try {
-                    if (notesFile.createNewFile()) {
-                        System.out.println("Created File notes.json.");
-                    }
-                } catch (IOException e) {
-                    System.out.println("An error occurred during creating notes.json: " + e.getMessage());
-                }
-
-                // Uploading new note to notes file
-                NotesManager.saveNotesToJson(newNote, notesFilePath, true, true);
+                fileManage(notesDirectoryPath, notesFilePath, newNote);
             }
         }
     }
+
     public static void deleteNote(BufferedReader reader) throws IOException {
         String notesFilePath = "";
         switch (getOS()){
             case "Windows" : {
+                notesFilePath = Patches.WINDOWS.getNotesFilePath();
+                break;
             }
             case "macOS" : {
-                String userHome = System.getProperty("user.home");
-                String notesDirectoryPath = userHome + "/Library/Application Support/Notes";
-                notesFilePath = notesDirectoryPath + "/notes.json";
+                notesFilePath = Patches.MACOS.getNotesFilePath();
             }
         }
         HashMap<String, Note> notes = getNotes();
