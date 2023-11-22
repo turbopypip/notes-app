@@ -1,17 +1,15 @@
 package Components;
 
+import utils.Colors;
+
 public class Note {
     //Note index is used to get specific note or to delete specific note
-    int index;
+    String index;
     DateOfCreation dateOfCreation;
     String title;
     String content;
-    //countNodes is used to get the index for new node
-    //Now this doesn't work correctly.
-    // !!! Later switch counter to getter !!!
-    public static int countNotes = 0;
 
-    public Note(int index,
+    public Note(String index,
                 DateOfCreation dateOfCreation,
                 String title,
                 String content){
@@ -19,6 +17,16 @@ public class Note {
         this.dateOfCreation = dateOfCreation;
         this.title = title;
         this.content = content;
-        countNotes += 1;
+    }
+    @Override
+    public String toString(){
+        return "Note: "
+                + Colors.GREEN.getColor()
+                + this.index
+                + Colors.BASE.getColor()
+                + this.title
+                + "\n"
+                + this.content
+                + "\n";
     }
 }

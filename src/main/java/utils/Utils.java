@@ -2,9 +2,12 @@ package utils;
 
 import Components.DateOfCreation;
 import Components.Note;
+import Components.NotesManager;
 
+import java.io.File;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.UUID;
 
 //This class contains all reusable methods
 public class Utils {
@@ -41,17 +44,78 @@ public class Utils {
         String content = reader.readLine();
 
         //Creating new note instance
+        UUID noteID = UUID.randomUUID();
         Note newNote = new Note(
-                Note.countNotes+1,
+                noteID.toString(),
                 new DateOfCreation(),
                 title,
                 content);
 
-        System.out.println(
-                Colors.GREEN.getColor()
-                + "New note added successfully!"
-                + Colors.BASE.getColor()
-                + "\n");
+        switch(getOS()){
+            case "Windows" : {
+                // Need to check if it works
+                String appDataDir = System.getenv("APPDATA");
+                String filePath = appDataDir + "\\Notes\\notes.json";
+                NotesManager.saveNotesToJson(newNote, filePath);
+                return;
+            }
+
+            case "macOS" : {
+                String userHome = System.getProperty("user.home");
+                String notesDirectoryPath = userHome + "/Library/Application Support/Notes";
+                String notesFilePath = notesDirectoryPath + "/notes.json";
+
+                // Creating Notes directory, if it is not exists
+                File notesDirectory = new File(notesDirectoryPath);
+                if (!notesDirectory.exists()) {
+                    if (notesDirectory.mkdirs()) {
+                        System.out.println("Директория Notes создана.");
+                    } else {
+                        System.out.println("Не удалось создать директорию Notes.");
+                    }
+                } else if (!notesDirectory.isDirectory()) {
+                    System.out.println("Путь " + notesDirectoryPath + " не является директорией.");
+                }
+
+                // Creating file notes.json in Notes directory
+                File notesFile = new File(notesFilePath);
+                try {
+                    if (notesFile.createNewFile()) {
+                        System.out.println("Файл notes.json создан.");
+                    } else {
+                        System.out.println("Файл notes.json уже существует.");
+                    }
+                } catch (IOException e) {
+                    System.out.println("Ошибка при создании файла notes.json: " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+                // Uploading new note to notes file
+                NotesManager.saveNotesToJson(newNote, notesFilePath);
+                return;
+            }
+            case "Unix" : {
+                String userHome = System.getProperty("user.home");
+                String filePath = userHome + "/.config/Notes/notes.json";
+                NotesManager.saveNotesToJson(newNote, filePath);
+            }
+        }
+    }
+
+    public static String getOS(){
+        // This method checks the users OS and returns its name
+
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {
+            return "Windows";
+        } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+            return "Unix";
+        } else if (os.contains("mac")) {
+            return "macOS";
+        } else {
+            return "Undefined OS";
+        }
     }
 
     public static void checkCommand(String input, BufferedReader reader){
