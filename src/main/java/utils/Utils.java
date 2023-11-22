@@ -58,7 +58,6 @@ public class Utils {
                     }
 
                 } catch (Exception e){
-                    System.out.println("It seems you don't have any notes.");
                     e.printStackTrace();
                 }
             }
@@ -68,6 +67,14 @@ public class Utils {
 
     public static void viewNotes(){
         HashMap<String, Note> notes = getNotes();
+        if (notes.isEmpty()){
+            System.out.println("\n"
+                    + Colors.YELLOW.getColor()
+                    + "You don't have any notes."
+                    + Colors.BASE.getColor()
+                    + "\n");
+            return;
+        }
         for (Note note : notes.values()) {
             System.out.println(note.toString());
         }
@@ -106,7 +113,7 @@ public class Utils {
                 // Need to check if it works
                 String appDataDir = System.getenv("APPDATA");
                 String filePath = appDataDir + "\\Notes\\notes.json";
-                NotesManager.saveNotesToJson(newNote, filePath, true);
+                NotesManager.saveNotesToJson(newNote, filePath, true, true);
                 return;
             }
 
@@ -138,9 +145,57 @@ public class Utils {
                 }
 
                 // Uploading new note to notes file
-                NotesManager.saveNotesToJson(newNote, notesFilePath, true);
+                NotesManager.saveNotesToJson(newNote, notesFilePath, true, true);
             }
         }
+    }
+    public static void deleteNote(BufferedReader reader) throws IOException {
+        String notesFilePath = "";
+        switch (getOS()){
+            case "Windows" : {
+            }
+            case "macOS" : {
+                String userHome = System.getProperty("user.home");
+                String notesDirectoryPath = userHome + "/Library/Application Support/Notes";
+                notesFilePath = notesDirectoryPath + "/notes.json";
+            }
+        }
+        HashMap<String, Note> notes = getNotes();
+        if (notes.isEmpty()){
+            System.out.println("\n"
+                    + Colors.YELLOW.getColor()
+                    + "You don't have any notes."
+                    + Colors.BASE.getColor()
+                    + "\n");
+            return;
+        }
+        System.out.println("Enter the note index (green text after note title)");
+
+        String noteIndex = reader.readLine();
+        if  (notes.remove(noteIndex) == null){
+            while (notes.remove(noteIndex) == null){
+                System.out.println("""
+                        \nUnable to find this note.
+                        Enter the note index again.
+                        """);
+                noteIndex = reader.readLine();
+            }
+
+        }
+        try (FileWriter writer = new FileWriter(notesFilePath)){
+            //Cleaning the file
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        for (Note note : notes.values()){
+            NotesManager.saveNotesToJson(note, notesFilePath, true, false);
+        }
+        System.out.println(
+                "\n"
+                + Colors.GREEN.getColor()
+                + "Note deleted successfully"
+                + Colors.BASE.getColor()
+                + "\n");
     }
 
     public static void checkCommand(String input, BufferedReader reader){
@@ -153,6 +208,7 @@ public class Utils {
                 case INFO -> viewCommands();
                 case NEW_NOTE -> addNote(reader);
                 case VIEW_NOTES -> viewNotes();
+                case DELETE_NOTE -> deleteNote(reader);
             }
         } catch (Exception e){
             System.out.println(
