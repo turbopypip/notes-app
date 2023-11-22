@@ -4,10 +4,14 @@ import utils.Colors;
 
 public class Note {
     //Note index is used to get specific note or to delete specific note
-    String index;
-    DateOfCreation dateOfCreation;
-    String title;
-    String content;
+    private final String index;
+    private final DateOfCreation dateOfCreation;
+    private final String title;
+    private final String content;
+
+    public String getIndex() {
+        return index;
+    }
 
     public Note(String index,
                 DateOfCreation dateOfCreation,
@@ -21,12 +25,15 @@ public class Note {
     @Override
     public String toString(){
         return "Note: "
+                + this.title
+                + " "
                 + Colors.GREEN.getColor()
                 + this.index
                 + Colors.BASE.getColor()
-                + this.title
                 + "\n"
                 + this.content
+                + "\n"
+                + dateOfCreation.getDate()
                 + "\n";
     }
 }
