@@ -118,6 +118,11 @@ public class Utils {
                 // Creating Notes directory, if it is not exists
                 File notesDirectory = new File(notesDirectoryPath);
                 if (!notesDirectory.exists()) {
+                    if (notesDirectory.mkdirs()) {
+                        System.out.println("Created Notes directory.");
+                    } else {
+                        System.out.println("Failed to create the Notes directory.");
+                    }
                 } else if (!notesDirectory.isDirectory()) {
                     System.out.println("Way " + notesDirectoryPath + " is not a directory.");
                 }
@@ -125,7 +130,9 @@ public class Utils {
                 // Creating file notes.json in Notes directory
                 File notesFile = new File(notesFilePath);
                 try {
-                    notesFile.createNewFile();
+                    if (notesFile.createNewFile()) {
+                        System.out.println("Created File notes.json.");
+                    }
                 } catch (IOException e) {
                     System.out.println("An error occurred during creating notes.json: " + e.getMessage());
                 }
